@@ -8,7 +8,7 @@ csv_process = None  # グローバル変数として定義
 
 
 def signal_handler(sig, frame):
-    print('プロセスが中断されました。')
+    print('\nプロセスが中断されました。')
     print('残存するプロセスを確認中...')
     # csv_processが存在する場合、すべて終了するまで待機
     if csv_process is not None:
@@ -44,6 +44,9 @@ def main():
     global csv_process
     csv_process = []
 
+    # 出力ディレクトリの作成
+    os.makedirs(raw_logs_dir, exist_ok=True)
+    os.makedirs(csv_dir, exist_ok=True)
 
     # 計測ループ
     while True:
@@ -69,7 +72,8 @@ def main():
         # CSV変換プロセス
         csv_process.append(subprocess.Popen(['python3', 'makecsv.py', log_path, os.path.join(
             csv_dir, f'{log_name}.csv')]))
-
+        # 終了したプロセスを削除
+        csv_process = [proc for proc in csv_process if proc.poll() is None]
 
 
 if __name__ == "__main__":
